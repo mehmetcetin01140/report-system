@@ -15,7 +15,6 @@ import axios from "axios"
       fetch(`${process.env.REACT_APP_ENDPOINT}`,{
         method: 'POST',
         body: formData,
-        credentials:'same-origin'
       })
       .then(res => res.json())
       .then(data=>window.localStorage.setItem('mailData',data.mail)

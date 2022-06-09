@@ -9,7 +9,6 @@ const [getReportsData,setGetReportsData] = useState([])
     formData.append('id',todoId)
     formData.append('action','delete-data')
    fetch(`${process.env.REACT_APP_ENDPOINT}`,{
-     
      method: 'POST',
      body: formData
    })

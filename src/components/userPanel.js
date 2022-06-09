@@ -1,6 +1,7 @@
 
 import React, {  useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
+import Alert from "@mui/material/Alert"
 import DatePicker from 'react-date-picker';
 import Warning from "./Warning"
 import Error from "./Error"
@@ -32,17 +33,18 @@ function Userpanel(props) {
     const [value13, setValue13] = useState(new Date());
     const [value14, setValue14] = useState(new Date());
     const [value15, setValue15] = useState(new Date());
-    const [totalTime,setTotalTime] = useState("")
-    const [totalTime1,setTotalTime1] = useState("")
-    const [totalTime2,setTotalTime2] = useState("")
-    const [totalTime3,setTotalTime3] = useState("")
-    const [totalTime4,setTotalTime4] = useState("")
-    const [totalTime5,setTotalTime5] = useState("")
-    const [totalTime6,setTotalTime6] = useState("")
-    const [totalTime7,setTotalTime7] = useState("")
+    const [totalTime,setTotalTime] = useState(Number(""))
+    const [totalTime1,setTotalTime1] = useState(Number(""))
+    const [totalTime2,setTotalTime2] = useState(Number(""))
+    const [totalTime3,setTotalTime3] = useState(Number(""))
+    const [totalTime4,setTotalTime4] = useState(Number(""))
+    const [totalTime5,setTotalTime5] = useState(Number(""))
+    const [totalTime6,setTotalTime6] = useState(Number(""))
+    const [totalTime7,setTotalTime7] = useState(Number(""))
     const [isCompleted,setIsCompleted] = useState(false)
     const [errorCheck,setErrorCheck] = useState(false)
     const [emailData,setEmailData] = useState([])
+    const [checker,setChecker] = useState(false)
     const weekday = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
     const d = new Date();
     let day = weekday[d.getDay()];
@@ -50,18 +52,6 @@ function Userpanel(props) {
     const showTime = date.getHours() 
         + ':' + date.getMinutes() 
         + ":" + date.getSeconds();
-  
-    // submitTodos fonksiyonuyla içi boş olanlar da database e yollanmasın diye filtreleme yaptım ve kontrol ettim. sendDatasın içinde sadece
-    // iş girilmiş olanlar tutuluyor ve post etmeye hazır.
-    // const submitTodos =()=>{
-    //  let sendDatas = valuesObject.filter(filt=>filt.toDos.length>0)
-    //  axios.post('http://localhost/raporlama/', sendDatas)
-    //  .then(response => {
-    //    console.log(response);
-    //  });
-    
-    // }
-   
     const valuesObject = [
       {toDos:toDo,setTodos:setTodo,valueData:value,valueDataSet:setValue,valueDataRight:value1,valueDataSetRight:setValue1,totalTimes:totalTime,setTotalTimes:setTotalTime},{toDos:toDo1,setTodos:setTodo1,valueData:value2,valueDataSet:setValue2,valueDataRight:value3,valueDataSetRight:setValue3,totalTimes:totalTime1,setTotalTimes:setTotalTime1},{toDos:toDo2,setTodos:setTodo2,valueData:value4,valueDataSet:setValue4,valueDataRight:value5,valueDataSetRight:setValue5,totalTimes:totalTime2,setTotalTimes:setTotalTime2},{toDos:toDo3,setTodos:setTodo3,valueData:value6,valueDataSet:setValue6,valueDataRight:value7,valueDataSetRight:setValue7,totalTimes:totalTime3,setTotalTimes:setTotalTime3},{toDos:toDo4,setTodos:setTodo4,valueData:value8,valueDataSet:setValue8,valueDataRight:value9,valueDataSetRight:setValue9,totalTimes:totalTime4,setTotalTimes:setTotalTime4},{toDos:toDo5,setTodos:setTodo5,valueData:value10,valueDataSet:setValue10,valueDataRight:value11,valueDataSetRight:setValue11,totalTimes:totalTime5,setTotalTimes:setTotalTime5},{toDos:toDo6,setTodos:setTodo6,valueData:value12,valueDataSet:setValue12,valueDataRight:value13,valueDataSetRight:setValue13,totalTimes:totalTime6,setTotalTimes:setTotalTime6},{toDos:toDo7,setTodos:setTodo7,valueData:value14,valueDataSet:setValue14,valueDataRight:value15,valueDataSetRight:setValue15,totalTimes:totalTime7,setTotalTimes:setTotalTime7}]
 
@@ -79,19 +69,37 @@ function Userpanel(props) {
      .then(data => setEmailData(data[0].user_namesurname)+window.localStorage.setItem('nameSurname',data[0].user_namesurname))
 
     }
+    const alertFunc = () =>{
+      window.scrollTo(0, document.body.scrollHeight);
+      return(
+        <div className='alert'>
+        <Alert variant="filled" severity="error">
+        Yalnızca 24 saat aralığında rapor gönderebilirsiniz.
+    </Alert>
+        </div>
+      )
+    }
     const addTodo = () =>{
   if(sendDatas.length===0){
     setErrorCheck(true)
   }
-      const formData = new FormData()
-      let maple = sendDatas.map(maple=>{
-        formData.append('is_ad',maple.toDos)
-        formData.append('is_baslangic',maple.valueData.toLocaleDateString())
-        formData.append('is_bitis',maple.valueDataRight.toLocaleDateString())
-        formData.append('toplamsure',maple.totalTimes)
+      sendDatas.forEach(element => {
+        let valueDataDate = (new Date(element.valueData).getDate())
+        let valueDataRightDate = (new Date(element.valueDataRight).getDate())
+        let valueDataMonth = (new Date(element.valueData).getMonth())
+        let valueDataMonthRight = (new Date(element.valueDataRight).getMonth())
+        let valueDataYear = (new Date(element.valueData).getFullYear())
+        let valueDataYearRight = (new Date(element.valueDataRight).getFullYear())
+        let currentDate = (new Date().getDate())
+        let currentYear = (new Date().getFullYear())
+        if(valueDataMonth-valueDataMonthRight === 0 && (valueDataYear-valueDataYearRight === 0 && valueDataYear === currentYear && valueDataYearRight === currentYear) && (valueDataDate-valueDataRightDate===0 || valueDataDate-valueDataRightDate ===-1) && element.totalTimes<=24){
+        const formData = new FormData()
+        formData.append('is_ad',element.toDos)
+        formData.append('is_baslangic',element.valueData.toLocaleDateString())
+        formData.append('is_bitis',element.valueDataRight.toLocaleDateString())
+        formData.append('toplamsure',element.totalTimes)
         formData.append('action','add-todo')
         fetch(`${process.env.REACT_APP_ENDPOINT}`,{
-          
           method: 'POST',
           body: formData
         })
@@ -100,14 +108,20 @@ function Userpanel(props) {
           if(data.error){
             alert("data error")
           }
-          
           else{
             setIsCompleted(true)
           }
-         
         })
         return addTodo
-      })
+        }
+        else{
+          setChecker(true)
+          setTimeout(() => {
+            setChecker(false)
+          }, 2500);
+        }
+      });
+    
     setTimeout(() => {
       setIsCompleted(false)
       setErrorCheck(false)
@@ -157,13 +171,12 @@ function Userpanel(props) {
     <tr><th>İşin Adı</th>
     <th>İş Başlangıç</th>
     <th>İş Bitiş</th>
-    <th>Toplam Süre</th>
+    <th>Süre(Saat)</th>
   </tr></thead>
   <tbody>
  
    {
-       valuesObject.map(item=>(
-           
+       valuesObject.map(item=>(          
            <tr >
                <td><input type="text" placeholder='İşin adını giriniz' onChange={(event)=>item.setTodos(event.target.value)} value={item.toDos} name="todoName"/></td>
                <td>
@@ -188,6 +201,7 @@ function Userpanel(props) {
   <Button variant="contained" color={"success"} onClick={addTodo} className={"userPanelButton smallButtons"}><span>Onayla</span></Button>
   </div>
   </div>
+   {checker===true ? alertFunc() : ""}
   </div>
 
   )
